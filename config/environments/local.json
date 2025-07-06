@@ -1,0 +1,56 @@
+{
+  "network": {
+    "environment": "LOCAL",
+    "proofsEnabled": false
+  },
+  "oracles": {
+    "registry": {
+      "MCA": {
+        "publicKey": "B62qpx6ACzCBLtMiCDJWdRGj9Jj4pWV34FGAFaxTYtpQCRdfQYrPJeT",
+        "privateKey": "EKFHMHF7e6eQDCz9a3T8YVHcrk5v3ZnqYSCuDR6Cnh5b6yj3obmH",
+        "role": "MCA_ORACLE",
+        "deployerAccountIndex": 0,
+        "senderAccountIndex": 1
+      },
+      "GLEIF": {
+        "publicKey": "B62qk5UC314UcBJJXHMxNVV7S8XMz7BYVPHVuKR8dxrsBnn1gSLiSGP",
+        "privateKey": "EKEdsD9zLnxwWrNuko3vupwrMGciRpRaFZYVQPLAtr6V8Egp2Sxo",
+        "role": "GLEIF_ORACLE",
+        "deployerAccountIndex": 2,
+        "senderAccountIndex": 3
+      },
+      "EXIM": {
+        "publicKey": "B62qkn1AH5P2KfD6FenisAE9jQSUommhfo9ouuh3o6dasYbyEajetM4",
+        "privateKey": "EKEuiPaPzsd26nJsdmyQ1f9t8rfE1FzFTMkbqN7TPu2w5JtYpnhy",
+        "role": "EXIM_ORACLE",
+        "deployerAccountIndex": 4,
+        "senderAccountIndex": 5
+      },
+      "BPMN": {
+        "publicKey": "B62qqrWHEHkE1ecdKUsrF38dXyBYRbSbM8MxVvRQESEtPWAvVzAsCMC",
+        "privateKey": "EKFdwbv5zqgnzYkB83et2dbybWpNCbKFmsAm85Zdv1VZZVeKy1Bk",
+        "role": "BPMN_ORACLE",
+        "deployerAccountIndex": 6,
+        "senderAccountIndex": 7
+      },
+      "RISK": {
+        "publicKey": "B62qkJL4P67ToHYXqMCSL61QN4AcNkCmcYYzqStKsy22FAgURRBX2CX",
+        "privateKey": "EKFQLehni1Hof9mRsaekrrDVT6XkMcYz938qe8iArFatn2VBkPJz",
+        "role": "RISK_ORACLE",
+        "deployerAccountIndex": 8,
+        "senderAccountIndex": 9
+      },
+      "BL_REGISTRY": {
+        "publicKey": "B62qqrWHEHkE1ecdKUsrF38dXyBYRbSbM8MxVvRQESEtPWAvVzAsCMC",
+        "privateKey": "EKFdwbv5zqgnzYkB83et2dbybWpNCbKFmsAm85Zdv1VZZVeKy1Bk",
+        "role": "BL_REGISTRY_ORACLE",
+        "deployerAccountIndex": 6,
+        "senderAccountIndex": 7
+      }
+    }
+  },
+  "deployments": {
+    "contracts": {}
+  },
+  "gleifApiConfig": {}
+}

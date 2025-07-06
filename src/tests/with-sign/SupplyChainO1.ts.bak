@@ -1,0 +1,87 @@
+// SupplyChainO1.ts
+import {
+   Field,
+   Signature,
+   SmartContract,
+   Struct,
+   ZkProgram,
+   Proof,
+   CircuitString,
+   method,
+   Permissions,
+   Circuit,
+   Provable,
+   Poseidon,
+} from 'o1js';
+
+/**
+ * Supply Chain Compliance Data Structure for O1JS
+ * Contains essential supply chain verification fields
+ */
+export class SupplyChainComplianceDataO1 extends Struct({
+   // Basic company information
+   companyId: CircuitString,
+   companyName: CircuitString,
+   supplierCode: CircuitString,
+   
+   // Certification details
+   certificationBody: CircuitString,
+   certificationNumber: CircuitString,
+   certificationStatus: CircuitString,
+   
+   // Compliance information
+   complianceLevel: CircuitString,
+   sustainabilityRating: CircuitString,
+   ethicalSourceVerified: CircuitString,
+   
+   // Audit information
+   lastAuditDate: CircuitString,
+   nextAuditDate: CircuitString,
+   auditScore: Field,
+   
+   // Location and origin
+   originCountry: CircuitString,
+   manufactureLocation: CircuitString,
+   
+   // Status fields
+   activeStatus: CircuitString,
+   riskLevel: CircuitString,
+}) { }
+
+/**
+ * Extracts the first record from parsedData and creates a SupplyChainComplianceDataO1 instance.
+ * @param parsedData The data object returned from fetchSupplyChainCompanyData
+ * @returns SupplyChainComplianceDataO1
+ */
+export function getSupplyChainComplianceDataO1(parsedData: any): SupplyChainComplianceDataO1 {
+  if (!parsedData.data || parsedData.data.length === 0) {
+    throw new Error('No records found in parsedData');
+  }
+  
+  const record = parsedData.data[0];
+  const attributes = record.attributes || {};
+  
+  return new SupplyChainComplianceDataO1({
+    companyId: CircuitString.fromString(record.id || ''),
+    companyName: CircuitString.fromString(attributes.companyName || ''),
+    supplierCode: CircuitString.fromString(attributes.supplierCode || ''),
+    
+    certificationBody: CircuitString.fromString(attributes.certification?.body || ''),
+    certificationNumber: CircuitString.fromString(attributes.certification?.number || ''),
+    certificationStatus: CircuitString.fromString(attributes.certification?.status || ''),
+    
+    complianceLevel: CircuitString.fromString(attributes.compliance?.level || ''),
+    sustainabilityRating: CircuitString.fromString(attributes.sustainability?.rating || ''),
+    ethicalSourceVerified: CircuitString.fromString(attributes.ethical?.sourceVerified || ''),
+    
+    lastAuditDate: CircuitString.fromString(attributes.audit?.lastDate || ''),
+    nextAuditDate: CircuitString.fromString(attributes.audit?.nextDate || ''),
+    auditScore: Field(attributes.audit?.score || 0),
+    
+    originCountry: CircuitString.fromString(attributes.location?.originCountry || ''),
+    manufactureLocation: CircuitString.fromString(attributes.location?.manufactureLocation || ''),
+    
+    activeStatus: CircuitString.fromString(attributes.status?.active || ''),
+    riskLevel: CircuitString.fromString(attributes.risk?.level || ''),
+  });
+}

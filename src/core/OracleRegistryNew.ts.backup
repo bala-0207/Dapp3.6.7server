@@ -1,0 +1,245 @@
+/**
+ * Updated Oracle Registry with Infrastructure Support
+ * Maintains backward compatibility while using the new infrastructure
+ */
+
+import { Mina, PrivateKey, PublicKey } from 'o1js';
+import { 
+  initializeOracleRegistry,
+  getPrivateKeyFor as infraGetPrivateKeyFor,
+  getPublicKeyFor as infraGetPublicKeyFor,
+  getDeployerAccount as infraGetDeployerAccount,
+  getDeployerKey as infraGetDeployerKey,
+  getSenderAccount as infraGetSenderAccount,
+  getSenderKey as infraGetSenderKey,
+  getCompatibilityAccounts
+} from '../infrastructure/index.js';
+
+// Initialize the infrastructure on module load
+let infrastructureInitialized = false;
+
+async function ensureInfrastructureInitialized() {
+  if (!infrastructureInitialized) {
+    await initializeOracleRegistry();
+    infrastructureInitialized = true;
+  }
+}
+
+// Backward compatibility exports
+export async function getPrivateKeyFor(key: string): Promise<PrivateKey> {
+  await ensureInfrastructureInitialized();
+  return infraGetPrivateKeyFor(key);
+}
+
+export async function getPublicKeyFor(key: string): Promise<PublicKey> {
+  await ensureInfrastructureInitialized();
+  return infraGetPublicKeyFor(key);
+}
+
+// Legacy account exports for backward compatibility
+let compatibilityAccounts: any = null;
+
+async function getCompatibilityAccountsCached() {
+  if (!compatibilityAccounts) {
+    await ensureInfrastructureInitialized();
+    compatibilityAccounts = await getCompatibilityAccounts();
+  }
+  return compatibilityAccounts;
+}
+
+// Export individual account variables for backward compatibility
+export async function getMCAAccounts() {
+  const accounts = await getCompatibilityAccountsCached();
+  return {
+    MCAdeployerAccount: accounts.MCAdeployerAccount,
+    MCAdeployerKey: accounts.MCAdeployerKey,
+    MCAsenderAccount: accounts.MCAsenderAccount,
+    MCAsenderKey: accounts.MCAsenderKey
+  };
+}
+
+export async function getGLEIFAccounts() {
+  const accounts = await getCompatibilityAccountsCached();
+  return {
+    GLEIFdeployerAccount: accounts.GLEIFdeployerAccount,
+    GLEIFdeployerKey: accounts.GLEIFdeployerKey,
+    GLEIFsenderAccount: accounts.GLEIFsenderAccount,
+    GLEIFsenderKey: accounts.GLEIFsenderKey
+  };
+}
+
+export async function getEXIMAccounts() {
+  const accounts = await getCompatibilityAccountsCached();
+  return {
+    EXIMdeployerAccount: accounts.EXIMdeployerAccount,
+    EXIMdeployerKey: accounts.EXIMdeployerKey,
+    EXIMsenderAccount: accounts.EXIMsenderAccount,
+    EXIMsenderKey: accounts.EXIMsenderKey
+  };
+}
+
+export async function getBusinessAccounts() {
+  const accounts = await getCompatibilityAccountsCached();
+  return {
+    BusinessProverdeployerAccount: accounts.BusinessProverdeployerAccount,
+    BusinessProverdeployerKey: accounts.BusinessProverdeployerKey,
+    BusinessProversenderAccount: accounts.BusinessProversenderAccount,
+    BusinessProversenderKey: accounts.BusinessProversenderKey
+  };
+}
+
+export async function getRiskAccounts() {
+  const accounts = await getCompatibilityAccountsCached();
+  return {
+    RiskProverdeployerAccount: accounts.RiskProverdeployerAccount,
+    RiskProverdeployerKey: accounts.RiskProverdeployerKey,
+    RiskProversenderAccount: accounts.RiskProversenderAccount,
+    RiskProversenderKey: accounts.RiskProversenderKey
+  };
+}
+
+// Direct exports for immediate backward compatibility
+// These will be undefined until the infrastructure is initialized
+export let MCAdeployerAccount: PublicKey;
+export let MCAdeployerKey: PrivateKey;
+export let MCAsenderAccount: PublicKey;
+export let MCAsenderKey: PrivateKey;
+
+export let GLEIFdeployerAccount: PublicKey;
+export let GLEIFdeployerKey: PrivateKey;
+export let GLEIFsenderAccount: PublicKey;
+export let GLEIFsenderKey: PrivateKey;
+
+export let EXIMdeployerAccount: PublicKey;
+export let EXIMdeployerKey: PrivateKey;
+export let EXIMsenderAccount: PublicKey;
+export let EXIMsenderKey: PrivateKey;
+
+export let BusinessProverdeployerAccount: PublicKey;
+export let BusinessProverdeployerKey: PrivateKey;
+export let BusinessProversenderAccount: PublicKey;
+export let BusinessProversenderKey: PrivateKey;
+
+export let RiskProverdeployerAccount: PublicKey;
+export let RiskProverdeployerKey: PrivateKey;
+export let RiskProversenderAccount: PublicKey;
+export let RiskProversenderKey: PrivateKey;
+
+export let Local: any;
+
+// Initialize compatibility variables
+(async () => {
+  try {
+    await ensureInfrastructureInitialized();
+    const accounts = await getCompatibilityAccounts();
+    
+    // Assign to exported variables
+    MCAdeployerAccount = accounts.MCAdeployerAccount;
+    MCAdeployerKey = accounts.MCAdeployerKey;
+    MCAsenderAccount = accounts.MCAsenderAccount;
+    MCAsenderKey = accounts.MCAsenderKey;
+
+    GLEIFdeployerAccount = accounts.GLEIFdeployerAccount;
+    GLEIFdeployerKey = accounts.GLEIFdeployerKey;
+    GLEIFsenderAccount = accounts.GLEIFsenderAccount;
+    GLEIFsenderKey = accounts.GLEIFsenderKey;
+
+    EXIMdeployerAccount = accounts.EXIMdeployerAccount;
+    EXIMdeployerKey = accounts.EXIMdeployerKey;
+    EXIMsenderAccount = accounts.EXIMsenderAccount;
+    EXIMsenderKey = accounts.EXIMsenderKey;
+
+    BusinessProverdeployerAccount = accounts.BusinessProverdeployerAccount;
+    BusinessProverdeployerKey = accounts.BusinessProverdeployerKey;
+    BusinessProversenderAccount = accounts.BusinessProversenderAccount;
+    BusinessProversenderKey = accounts.BusinessProversenderKey;
+
+    RiskProverdeployerAccount = accounts.RiskProverdeployerAccount;
+    RiskProverdeployerKey = accounts.RiskProverdeployerKey;
+    RiskProversenderAccount = accounts.RiskProversenderAccount;
+    RiskProversenderKey = accounts.RiskProversenderKey;
+
+    // For LOCAL environment, expose the Local blockchain
+    const environment = (await import('../infrastructure/environment/manager.js')).environmentManager.getCurrentEnvironment();
+    if (environment === 'LOCAL') {
+      const { LocalOracleRegistry } = await import('../infrastructure/oracle/LocalOracleRegistry.js');
+      const { OracleRegistryFactory } = await import('../infrastructure/oracle/factory.js');
+      const registry = await OracleRegistryFactory.create();
+      if (registry instanceof LocalOracleRegistry) {
+        Local = registry.getLocalBlockchain();
+      }
+    }
+
+    console.log('✅ Oracle Registry backward compatibility initialized');
+  } catch (error) {
+    console.error('❌ Failed to initialize Oracle Registry compatibility:', error);
+  }
+})();
+
+// Legacy Registry Map for backward compatibility
+export const Registry = new Map<string, {
+  publicKey: PublicKey;
+  privateKey: PrivateKey;
+}>();
+
+// Initialize the Registry Map once infrastructure is ready
+(async () => {
+  await ensureInfrastructureInitialized();
+  
+  try {
+    Registry.set('MCA', {
+      publicKey: await infraGetPublicKeyFor('MCA'),
+      privateKey: await infraGetPrivateKeyFor('MCA')
+    });
+
+    Registry.set('GLEIF', {
+      publicKey: await infraGetPublicKeyFor('GLEIF'),
+      privateKey: await infraGetPrivateKeyFor('GLEIF')
+    });
+
+    Registry.set('EXIM', {
+      publicKey: await infraGetPublicKeyFor('EXIM'),
+      privateKey: await infraGetPrivateKeyFor('EXIM')
+    });
+
+    Registry.set('BPMN', {
+      publicKey: await infraGetPublicKeyFor('BPMN'),
+      privateKey: await infraGetPrivateKeyFor('BPMN')
+    });
+
+    Registry.set('RISK', {
+      publicKey: await infraGetPublicKeyFor('RISK'),
+      privateKey: await infraGetPrivateKeyFor('RISK')
+    });
+
+    Registry.set('BL_REGISTRY', {
+      publicKey: await infraGetPublicKeyFor('BL_REGISTRY'),
+      privateKey: await infraGetPrivateKeyFor('BL_REGISTRY')
+    });
+
+    console.log('✅ Legacy Registry Map initialized');
+  } catch (error) {
+    console.error('❌ Failed to initialize legacy Registry Map:', error);
+  }
+})();
+
+// Legacy function exports (synchronous versions will throw if not initialized)
+export function getPrivateKeyForSync(key: string): PrivateKey {
+  const entry = Registry.get(key);
+  if (!entry) {
+    throw new Error(`No private key found for ${key}. Make sure Oracle Registry is initialized.`);
+  }
+  return entry.privateKey;
+}
+
+export function getPublicKeyForSync(key: string): PublicKey {
+  const entry = Registry.get(key);
+  if (!entry) {
+    throw new Error(`No public key found for ${key}. Make sure Oracle Registry is initialized.`);
+  }
+  return entry.publicKey;
+}
+
+// For the synchronous exports that the existing code expects
+// We need to create a compatibility layer
+export { getPrivateKeyForSync as getPrivateKeyFor, getPublicKeyForSync as getPublicKeyFor };
