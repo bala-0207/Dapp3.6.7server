@@ -4,6 +4,7 @@ dotenv.config();
 import { spawn } from 'child_process';
 import path from 'path';
 import { existsSync } from 'fs';
+import { pathToFileURL } from 'url';
 import { logger } from '../utils/logger.js';
 
 export interface ToolExecutionResult {
@@ -16,6 +17,7 @@ export interface ZKExecutorConfig {
   stdioPath: string;
   stdioBuildPath: string;
   timeout: number;
+  executionMode: 'spawn' | 'direct';
 }
 
 /**
@@ -33,12 +35,14 @@ export class ZKToolExecutor {
     this.config = {
       stdioPath: process.env.ZK_PRET_STDIO_PATH || process.cwd(),
       stdioBuildPath: process.env.ZK_PRET_STDIO_BUILD_PATH || './build/src/tests/with-sign',
-      timeout: parseInt(process.env.ZK_PRET_SERVER_TIMEOUT || '1800000')
+      timeout: parseInt(process.env.ZK_PRET_SERVER_TIMEOUT || '1800000'),
+      executionMode: (process.env.ZK_PRET_EXECUTION_MODE as 'spawn' | 'direct') || 'direct'
     };
 
     console.log('DEBUG: Final stdioPath =', this.config.stdioPath);
     console.log('DEBUG: Final stdioBuildPath =', this.config.stdioBuildPath);
     console.log('DEBUG: Final timeout =', this.config.timeout);
+    console.log('DEBUG: Final executionMode =', this.config.executionMode);
     console.log('=====================================');
   }
 
@@ -247,9 +251,15 @@ export class ZKToolExecutor {
     }
 
     console.log('✅ Compiled JavaScript file found');
-    console.log('🚀 Executing compiled JavaScript file...');
-
-    return await this.executeJavaScriptFile(compiledScriptPath, parameters, toolName);
+    
+    // Choose execution mode based on configuration
+    if (this.config.executionMode === 'direct') {
+      console.log('🚀 Executing via direct execution...');
+      return await this.executeDirectly(compiledScriptPath, parameters, toolName);
+    } else {
+      console.log('🚀 Executing via spawned process...');
+      return await this.executeJavaScriptFile(compiledScriptPath, parameters, toolName);
+    }
   }
 
   async buildProject(): Promise<boolean> {
@@ -295,6 +305,144 @@ export class ZKToolExecutor {
         resolve(false);
       });
     });
+  }
+
+  async executeDirectly(scriptPath: string, parameters: any = {}, toolName?: string): Promise<any> {
+    const startTime = Date.now();
+    
+    try {
+      console.log('=== INTEGRATED SERVER DIRECT EXECUTION DEBUG ===');
+      console.log('Script Path:', scriptPath);
+      console.log('Working Directory:', this.config.stdioPath);
+      console.log('Tool Name:', toolName);
+      console.log('Parameters:', JSON.stringify(parameters, null, 2));
+      console.log('================================================');
+
+      // Capture console output
+      const originalConsoleLog = console.log;
+      const originalConsoleError = console.error;
+      let stdout = '';
+      let stderr = '';
+
+      console.log = (...args) => {
+        const output = args.join(' ');
+        stdout += output + '\n';
+        originalConsoleLog('📤 STDOUT:', output);
+      };
+
+      console.error = (...args) => {
+        const output = args.join(' ');
+        stderr += output + '\n';
+        originalConsoleError('📥 STDERR:', output);
+      };
+
+      let result;
+      const timeout = setTimeout(() => {
+        throw new Error(`Direct execution timeout after ${this.config.timeout}ms`);
+      }, this.config.timeout);
+
+      try {
+        // Convert Windows path to file:// URL for ES module import
+        const fileUrl = pathToFileURL(scriptPath);
+        console.log('File URL for import:', fileUrl.href);
+        
+        // Dynamic import of the compiled script
+        const scriptModule = await import(fileUrl.href);
+        
+        // Call the appropriate direct execution function based on tool name
+        switch (toolName) {
+          case 'get-GLEIF-verification-with-sign':
+            if (scriptModule.executeGLEIFVerificationDirect) {
+              result = await scriptModule.executeGLEIFVerificationDirect(parameters);
+            } else {
+              throw new Error('executeGLEIFVerificationDirect function not found in module');
+            }
+            break;
+            
+          case 'get-EXIM-verification-with-sign':
+            if (scriptModule.executeEXIMVerificationDirect) {
+              result = await scriptModule.executeEXIMVerificationDirect(parameters);
+            } else {
+              throw new Error('executeEXIMVerificationDirect function not found in module');
+            }
+            break;
+            
+          case 'get-Corporate-Registration-verification-with-sign':
+            if (scriptModule.executeCorporateRegistrationVerificationDirect) {
+              result = await scriptModule.executeCorporateRegistrationVerificationDirect(parameters);
+            } else {
+              throw new Error('executeCorporateRegistrationVerificationDirect function not found in module');
+            }
+            break;
+            
+          default:
+            throw new Error(`Direct execution not implemented for tool: ${toolName}`);
+        }
+        
+        clearTimeout(timeout);
+        
+      } finally {
+        // Restore console methods
+        console.log = originalConsoleLog;
+        console.error = originalConsoleError;
+      }
+
+      const executionTime = Date.now() - startTime;
+      
+      console.log('=== INTEGRATED SERVER DIRECT EXECUTION COMPLETE ===');
+      console.log('Success: true');
+      console.log('Execution Time:', `${executionTime}ms`);
+      console.log('Result Success:', result?.success);
+      console.log('==================================================');
+
+      // Format the response similar to spawned execution
+      const response = {
+        // System execution always successful if we reach here
+        systemExecution: {
+          status: 'success',
+          executionCompleted: true,
+          scriptExecuted: true,
+          executionTime: new Date().toISOString(),
+          mode: 'direct-execution'
+        },
+
+        // Verification result from the direct function call
+        verificationResult: {
+          success: result?.success || false,
+          zkProofGenerated: true,
+          status: result?.success ? 'verification_passed' : 'verification_failed',
+          reason: result?.success ? 'Verification completed successfully via direct execution' : 'Verification failed during direct execution'
+        },
+
+        // Include the actual result data
+        result: result,
+
+        // Legacy compatibility
+        status: 'completed',
+        zkProofGenerated: true,
+        timestamp: new Date().toISOString(),
+        output: stdout,
+        stderr: stderr,
+        executionStrategy: 'Integrated Backend - Direct function execution',
+        executionMode: 'direct-execution',
+        executionTime: `${executionTime}ms`
+      };
+
+      return {
+        success: true,
+        result: response
+      };
+      
+    } catch (error) {
+      const executionTime = Date.now() - startTime;
+      
+      console.log('=== INTEGRATED SERVER DIRECT EXECUTION FAILED ===');
+      console.log('Error:', error instanceof Error ? error.message : String(error));
+      console.log('Execution Time:', `${executionTime}ms`);
+      console.log('=================================================');
+      
+      throw error;
+    }
   }
 
   async executeJavaScriptFile(scriptPath: string, parameters: any = {}, toolName?: string): Promise<any> {
