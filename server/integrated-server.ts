@@ -609,8 +609,12 @@ app.use((req: express.Request, res: express.Response) => {
 // Start server function
 const startServer = async () => {
   try {
-    // Initialize ZK Tool Executor
+    console.log('🚀 Starting ZK-PRET Integrated HTTP Server...');
+    
+    // Initialize ZK Tool Executor with timeout protection
+    console.log('⚡ Initializing ZK Tool Executor...');
     await zkToolExecutor.initialize();
+    console.log('✅ ZK Tool Executor initialization completed');
     
     server.listen(ZK_PRET_HTTP_SERVER_PORT, ZK_PRET_HTTP_SERVER_HOST, () => {
       logger.info(`🚀 ZK-PRET Integrated HTTP Server started successfully`);
@@ -650,6 +654,7 @@ const startServer = async () => {
     });
   } catch (error) {
     logger.error('Failed to start integrated HTTP server:', error);
+    console.log('❌ Server startup failed, but this should not happen with the new timeout protection');
     process.exit(1);
   }
 };
@@ -674,7 +679,10 @@ process.on('SIGINT', () => {
   });
 });
 
-// Only start server if this file is run directly
-if (import.meta.url === `file://${process.argv[1]}`) {
-  startServer();
-}
+// Start server automatically - simplified approach for reliability
+// Since this is the main integrated server file, we'll start it directly
+console.log('Starting server from integrated-server.js...');
+startServer().catch(error => {
+  console.error('Failed to start server:', error);
+  process.exit(1);
+});

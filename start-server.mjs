@@ -46,12 +46,22 @@ if (!existsSync(serverBuildPath)) {
   }
 }
 
-console.log('🎯 Starting integrated server...');
+console.log('🎯 Starting integrated server with timeout protection...');
 
-// Start the server
+// Start the server with timeout protection
 try {
   const { startServer } = await import('./build/server/integrated-server.js');
+  
+  // Add startup timeout protection
+  const startupTimeout = setTimeout(() => {
+    console.error('❌ Server startup timeout after 30 seconds');
+    console.log('⚠️  This usually means the health check is hanging');
+    console.log('⚠️  The server should now have timeout protection to handle this');
+    process.exit(1);
+  }, 30000);
+  
   await startServer();
+  clearTimeout(startupTimeout);
 } catch (error) {
   console.error('❌ Failed to start server:', error);
   process.exit(1);

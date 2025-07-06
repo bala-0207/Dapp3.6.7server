@@ -44,13 +44,21 @@ export class ZKToolExecutor {
 
   async initialize(): Promise<void> {
     try {
-      await this.healthCheck();
+      // Add timeout to health check to prevent hanging
+      const healthCheckPromise = this.healthCheck();
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Health check timeout after 10 seconds')), 10000);
+      });
+      
+      await Promise.race([healthCheckPromise, timeoutPromise]);
       logger.info('Integrated ZK Tool Executor initialized successfully');
     } catch (error) {
       logger.warn('Integrated ZK Tool Executor initialization failed', {
         error: error instanceof Error ? error.message : String(error),
         stdioPath: this.config.stdioPath
       });
+      // Don't throw error - allow server to start even if health check fails
+      console.log('⚠️  Health check failed but continuing server startup...');
     }
   }
 
@@ -59,51 +67,55 @@ export class ZKToolExecutor {
       console.log('=== INTEGRATED ZK EXECUTOR HEALTH CHECK ===');
       console.log('Checking path:', this.config.stdioPath);
 
-      const fs = await import('fs/promises');
-      await fs.access(this.config.stdioPath);
+      // Use synchronous file access to avoid hanging
+      const fs = await import('fs');
+      
+      // Check main path synchronously
+      if (!fs.existsSync(this.config.stdioPath)) {
+        console.log('❌ Main path does not exist');
+        return { connected: false };
+      }
       console.log('✅ Main path exists');
 
       const buildPath = path.join(this.config.stdioPath, this.config.stdioBuildPath);
       console.log('Checking build path:', buildPath);
       
-      // Check if build directory exists, if not try to create it
-      try {
-        await fs.access(buildPath);
-        console.log('✅ Build path exists');
-      } catch {
+      // Check if build directory exists synchronously
+      if (!fs.existsSync(buildPath)) {
         console.log('⚠️  Build path does not exist, will try to build first');
+      } else {
+        console.log('✅ Build path exists');
       }
 
-      // Check for key source files to ensure we're in the right directory
-      const sourceFiles = [
-        'src/tests/with-sign/GLEIFOptimMultiCompanyVerificationTestWithSign.ts',
-        'src/tests/with-sign/CorporateRegistrationOptimMultiCompanyVerificationTestWithSign.ts',
-        'src/tests/with-sign/EXIMOptimMultiCompanyVerificationTestWithSign.ts'
+      // Check for key compiled JavaScript files instead of TypeScript sources
+      const compiledFiles = [
+        'GLEIFOptimMultiCompanyVerificationTestWithSign.js',
+        'CorporateRegistrationOptimMultiCompanyVerificationTestWithSign.js',
+        'EXIMOptimMultiCompanyVerificationTestWithSign.js'
       ];
 
-      console.log('Checking for source TypeScript files:');
-      let foundSourceFiles = 0;
-      for (const file of sourceFiles) {
-        const filePath = path.join(this.config.stdioPath, file);
-        try {
-          await fs.access(filePath);
-          console.log(`✅ Found source: ${file}`);
-          foundSourceFiles++;
-        } catch {
-          console.log(`❌ Missing source: ${file}`);
+      console.log('Checking for compiled JavaScript files:');
+      let foundCompiledFiles = 0;
+      for (const file of compiledFiles) {
+        const filePath = path.join(this.config.stdioPath, this.config.stdioBuildPath, file);
+        if (fs.existsSync(filePath)) {
+          console.log(`✅ Found: ${file}`);
+          foundCompiledFiles++;
+        } else {
+          console.log(`❌ Missing: ${file}`);
         }
       }
 
       console.log('=========================');
 
       return {
-        connected: foundSourceFiles > 0,
+        connected: foundCompiledFiles > 0,
         status: { 
           mode: 'integrated-server', 
           path: this.config.stdioPath, 
           buildPath,
-          sourceFilesFound: foundSourceFiles,
-          totalSourceFiles: sourceFiles.length
+          compiledFilesFound: foundCompiledFiles,
+          totalCompiledFiles: compiledFiles.length
         }
       };
     } catch (error) {
@@ -296,10 +308,31 @@ export class ZKToolExecutor {
       console.log('Full Command:', `node ${scriptPath} ${args.join(' ')}`);
       console.log('===================================');
 
+      // Get Node.js version to determine which flags to use
+      const nodeVersion = process.version;
+      const majorVersion = parseInt(nodeVersion.split('.')[0].replace('v', ''));
+      
+      // Prepare Node.js flags based on version compatibility
+      const nodeFlags = [];
+      
+      // Only add experimental flags if Node.js version supports them
+      if (majorVersion >= 14) {
+        nodeFlags.push('--experimental-vm-modules');
+      }
+      
+      if (majorVersion >= 16) {
+        nodeFlags.push('--experimental-wasm-modules');
+      }
+      
+      // Skip the problematic --experimental-wasm-threads flag entirely
+      // This flag has compatibility issues across different Node.js versions
+      // The ZK programs should work without it
+      
+      console.log('Node.js version:', nodeVersion);
+      console.log('Using Node.js flags:', nodeFlags);
+
       const nodeProcess = spawn('node', [
-        '--experimental-vm-modules',
-        '--experimental-wasm-modules', 
-        '--experimental-wasm-threads',
+        ...nodeFlags,
         scriptPath, 
         ...args
       ], {

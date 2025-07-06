@@ -6,3 +6,58 @@
 {"level":"info","message":"Async job management enabled","service":"zk-pret-integrated-server","timestamp":"2025-07-06T04:43:32.974Z"}
 {"level":"info","message":"Async job management enabled","service":"zk-pret-integrated-server","timestamp":"2025-07-06T04:44:10.211Z"}
 {"level":"info","message":"Async job management enabled","service":"zk-pret-integrated-server","timestamp":"2025-07-06T04:44:28.411Z"}
+{"level":"info","message":"Async job management enabled","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:17:54.152Z"}
+{"level":"info","message":"Async job management enabled","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:27:46.602Z"}
+{"level":"info","message":"Async job management enabled","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:38:19.653Z"}
+{"level":"info","message":"Async job management enabled","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:44:03.910Z"}
+{"level":"info","message":"Integrated ZK Tool Executor initialized successfully","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:44:03.923Z"}
+{"level":"info","message":"🚀 ZK-PRET Integrated HTTP Server started successfully","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:44:03.957Z"}
+{"level":"info","message":"📡 Server URL: http://localhost:3001","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:44:03.958Z"}
+{"level":"info","message":"🔄 Mode: Integrated (Backend + Server)","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:44:03.958Z"}
+{"level":"info","message":"📡 WebSocket URL: ws://localhost:3001","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:44:03.959Z"}
+{"level":"info","message":"⚡ Features: Direct access to ZK-PRET backend tools via HTTP API","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:44:03.959Z"}
+{"level":"info","message":"🎯 Ready to process ZK-PRET tool requests","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:44:03.959Z"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:44:26.191Z","url":"/api/v1/health","userAgent":"axios/1.9.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:44:26.217Z","url":"/api/v1/health","userAgent":"axios/1.9.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:44:26.225Z","url":"/api/v1/health","userAgent":"ZK-PRET-UNIFIED-APP/1.0.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:44:41.711Z","url":"/api/v1/health","userAgent":"axios/1.9.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"POST","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:44:50.649Z","url":"/api/v1/tools/execute","userAgent":"ZK-PRET-UNIFIED-APP/1.0.0"}
+{"level":"info","message":"SYNC execution started","mode":"sync-integrated","parameters":"{\"companyName\":\"SREE PALANI ANDAVAR AGROS PRIVATE LIMITED\",\"typeOfNet\":\"TESTNET\"}","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:44:50.657Z","toolName":"get-GLEIF-verification-with-sign"}
+{"executionTime":"80ms","level":"info","message":"SYNC execution completed","mode":"sync-integrated","service":"zk-pret-integrated-server","success":false,"timestamp":"2025-07-06T05:44:50.742Z","toolName":"get-GLEIF-verification-with-sign","totalTime":"85ms"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:44:56.241Z","url":"/api/v1/health","userAgent":"axios/1.9.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:45:26.253Z","url":"/api/v1/health","userAgent":"axios/1.9.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:45:56.266Z","url":"/api/v1/health","userAgent":"axios/1.9.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:46:26.280Z","url":"/api/v1/health","userAgent":"axios/1.9.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:46:56.286Z","url":"/api/v1/health","userAgent":"axios/1.9.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:47:26.294Z","url":"/api/v1/health","userAgent":"axios/1.9.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:47:56.296Z","url":"/api/v1/health","userAgent":"axios/1.9.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:48:26.367Z","url":"/api/v1/health","userAgent":"axios/1.9.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:48:56.337Z","url":"/api/v1/health","userAgent":"axios/1.9.0"}
+{"level":"info","message":"SIGINT received, shutting down gracefully","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:48:58.956Z"}
+{"level":"info","message":"Async job management enabled","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:49:43.926Z"}
+{"level":"info","message":"Integrated ZK Tool Executor initialized successfully","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:49:43.943Z"}
+{"level":"info","message":"🚀 ZK-PRET Integrated HTTP Server started successfully","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:49:43.967Z"}
+{"level":"info","message":"📡 Server URL: http://localhost:3001","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:49:43.967Z"}
+{"level":"info","message":"🔄 Mode: Integrated (Backend + Server)","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:49:43.968Z"}
+{"level":"info","message":"📡 WebSocket URL: ws://localhost:3001","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:49:43.969Z"}
+{"level":"info","message":"⚡ Features: Direct access to ZK-PRET backend tools via HTTP API","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:49:43.970Z"}
+{"level":"info","message":"🎯 Ready to process ZK-PRET tool requests","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:49:43.970Z"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:49:49.948Z","url":"/api/v1/health","userAgent":"axios/1.9.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:49:49.961Z","url":"/api/v1/health","userAgent":"axios/1.9.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:49:49.968Z","url":"/api/v1/health","userAgent":"ZK-PRET-UNIFIED-APP/1.0.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:50:01.541Z","url":"/api/v1/health","userAgent":"axios/1.9.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"POST","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:50:09.604Z","url":"/api/v1/tools/execute","userAgent":"ZK-PRET-UNIFIED-APP/1.0.0"}
+{"level":"info","message":"SYNC execution started","mode":"sync-integrated","parameters":"{\"companyName\":\"SREE PALANI ANDAVAR AGROS PRIVATE LIMITED\",\"typeOfNet\":\"TESTNET\"}","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:50:09.606Z","toolName":"get-GLEIF-verification-with-sign"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:50:19.985Z","url":"/api/v1/health","userAgent":"axios/1.9.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:50:49.987Z","url":"/api/v1/health","userAgent":"axios/1.9.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:51:20.005Z","url":"/api/v1/health","userAgent":"axios/1.9.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:51:50.021Z","url":"/api/v1/health","userAgent":"axios/1.9.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:52:20.030Z","url":"/api/v1/health","userAgent":"axios/1.9.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:52:50.038Z","url":"/api/v1/health","userAgent":"axios/1.9.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:53:20.040Z","url":"/api/v1/health","userAgent":"axios/1.9.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:53:50.042Z","url":"/api/v1/health","userAgent":"axios/1.9.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:54:20.055Z","url":"/api/v1/health","userAgent":"axios/1.9.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:54:50.066Z","url":"/api/v1/health","userAgent":"axios/1.9.0"}
+{"executionTime":"304809ms","level":"info","message":"SYNC execution completed","mode":"sync-integrated","service":"zk-pret-integrated-server","success":true,"timestamp":"2025-07-06T05:55:14.418Z","toolName":"get-GLEIF-verification-with-sign","totalTime":"304812ms"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:55:20.080Z","url":"/api/v1/health","userAgent":"axios/1.9.0"}
+{"level":"info","message":"SIGINT received, shutting down gracefully","service":"zk-pret-integrated-server","timestamp":"2025-07-06T05:55:40.069Z"}
