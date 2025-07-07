@@ -14,6 +14,9 @@
  */
 
 import { Field, Mina, PrivateKey, AccountUpdate, CircuitString, Poseidon, Signature, UInt64 } from 'o1js';
+import path from 'path';
+import dotenv from 'dotenv';
+dotenv.config();
 import { getPrivateKeyFor } from '../../core/OracleRegistry.js';
 import { 
     fetchRiskLiquidityBasel3OptimMerkleData,
@@ -36,7 +39,7 @@ import { RiskLiquidityBasel3OptimMerkleSmartContract } from '../../contracts/wit
 export async function executeRiskLiquidityBasel3OptimMerkleVerification(
     lcrThreshold: number,
     nsfrThreshold: number = 100,
-    actusUrl: string = 'http://localhost:8083/eventsBatch',
+    actusUrl: string = process.env.ACTUS_SERVER_URL || 'http://localhost:8083/eventsBatch',
     contractPortfolio?: any[]
 ): Promise<{
     success: boolean;
@@ -371,7 +374,7 @@ export async function executeRiskLiquidityBasel3OptimMerkleVerification(
 async function main() {
     const lcrThreshold = parseFloat(process.argv[2]) || 100;
     const nsfrThreshold = parseFloat(process.argv[3]) || 100;
-    const actusUrl = process.argv[4] || 'http://localhost:8083/eventsBatch';
+    const actusUrl = process.argv[4] || process.env.ACTUS_SERVER_URL || 'http://localhost:8083/eventsBatch';
     const portfolioPath = process.argv[5]; // Optional portfolio file path
     
     console.log(`🎯 Basel3 LCR Threshold: ${lcrThreshold}%`);
@@ -384,22 +387,29 @@ async function main() {
         console.log(`📁 Loading portfolio from: ${portfolioPath}`);
         try {
             const fs = await import('fs/promises');
-            const path = await import('path');
             
-            // ✅ CRITICAL FIX: Resolve path relative to project root
-            // If path starts with './', resolve relative to current working directory
-            // Otherwise, treat as absolute or relative to project root
+            // Resolve full path for config file based on project structure
+            const projectRoot = process.cwd();
+            console.log('🏠 Project root:', projectRoot);
+            
             let resolvedPath = portfolioPath;
-            if (portfolioPath.startsWith('./')) {
-                resolvedPath = path.resolve(process.cwd(), portfolioPath);
+            
+            // If the file is just a filename (not full path), resolve it to the correct directory
+            if (!path.isAbsolute(portfolioPath) && !portfolioPath.includes('/') && !portfolioPath.includes('\\')) {
+                resolvedPath = path.join(projectRoot, 'src', 'data', 'RISK', 'Basel3', 'CONFIG', portfolioPath);
+                console.log('📂 Resolved config file path:', resolvedPath);
+            } else if (portfolioPath.startsWith('./')) {
+                resolvedPath = path.resolve(projectRoot, portfolioPath);
+                console.log('📂 Resolved relative path:', resolvedPath);
             } else if (!path.isAbsolute(portfolioPath)) {
                 // For relative paths like 'src/data/RISK/Basel3/CONFIG/basel3-L1-1.json'
                 // resolve relative to project root
-                resolvedPath = path.resolve(process.cwd(), portfolioPath);
+                resolvedPath = path.resolve(projectRoot, portfolioPath);
+                console.log('📂 Resolved project relative path:', resolvedPath);
             }
             
-            console.log(`📂 Resolved path: ${resolvedPath}`);
-            console.log(`🔍 Current working directory: ${process.cwd()}`);
+            console.log(`📋 Final config file path: ${resolvedPath}`);
+            console.log(`🔍 Current working directory: ${projectRoot}`);
             
             const fileContent = await fs.readFile(resolvedPath, 'utf-8');
             const parsed = JSON.parse(fileContent);
@@ -450,8 +460,126 @@ async function main() {
     }
 }
 
-// Run the main function
-main().catch(err => {
+// Export function for direct execution from integrated server
+export async function executeBasel3VerificationDirect(parameters: any): Promise<any> {
+  try {
+    console.log('=== BASEL3 DIRECT EXECUTION START ===');
+    console.log('🔧 Direct Basel3 Risk Verification execution started');
+    console.log('Parameters received:', JSON.stringify(parameters, null, 2));
+    console.log('Execution Mode: DIRECT FUNCTION CALL (no CLI args)');
+    console.log('======================================');
+    
+    const lcrThreshold = parameters.lcrThreshold || 100;
+    const nsfrThreshold = parameters.nsfrThreshold || 100;
+    const actusUrl = parameters.actusUrl || process.env.ACTUS_SERVER_URL || 'http://localhost:8083/eventsBatch';
+    const configFilePath = parameters.configFilePath || 'basel3-VALID-1.json';
+    
+    console.log('📋 Using parameters:');
+    console.log('  LCR Threshold:', lcrThreshold + '%');
+    console.log('  NSFR Threshold:', nsfrThreshold + '%');
+    console.log('  ACTUS URL:', actusUrl);
+    console.log('  Config File:', configFilePath);
+    console.log('');
+    
+    // Resolve full path for config file based on project structure
+    const projectRoot = process.cwd();
+    console.log('🏠 Project root:', projectRoot);
+    
+    let resolvedConfigPath: string | undefined = undefined;
+    
+    if (configFilePath) {
+      let tempPath = configFilePath;
+      
+      // If the file is just a filename (not full path), resolve it to the correct directory
+      if (!path.isAbsolute(configFilePath) && !configFilePath.includes('/') && !configFilePath.includes('\\')) {
+        tempPath = path.join(projectRoot, 'src', 'data', 'RISK', 'Basel3', 'CONFIG', configFilePath);
+        console.log('📂 Resolved config file path:', tempPath);
+      } else if (configFilePath.startsWith('./')) {
+        tempPath = path.resolve(projectRoot, configFilePath);
+        console.log('📂 Resolved relative path:', tempPath);
+      } else if (!path.isAbsolute(configFilePath)) {
+        tempPath = path.resolve(projectRoot, configFilePath);
+        console.log('📂 Resolved project relative path:', tempPath);
+      }
+      
+      resolvedConfigPath = tempPath;
+    }
+    
+    console.log('');
+    console.log('📋 Final config path:', resolvedConfigPath || 'None (using defaults)');
+    console.log('');
+    
+    console.log('🚀 Starting Basel3 Risk Liquidity verification...');
+    
+    // Load contract portfolio if config file provided
+    let contractPortfolio: any[] | undefined = undefined;
+    if (resolvedConfigPath) {
+      try {
+        const fs = await import('fs/promises');
+        const fileContent = await fs.readFile(resolvedConfigPath, 'utf-8');
+        const parsed = JSON.parse(fileContent);
+        contractPortfolio = parsed.contracts || parsed;
+        
+        console.log(`✅ Successfully loaded ${contractPortfolio?.length || 0} contracts from config`);
+        console.log(`📆 Portfolio ID: ${parsed.portfolioMetadata?.portfolioId || 'Unknown'}`);
+        console.log(`💰 Total Notional: ${parsed.portfolioMetadata?.totalNotional || 'Unknown'}`);
+        
+      } catch (error) {
+        console.error(`❌ Failed to load config from ${resolvedConfigPath}:`, error);
+        console.log('🔄 Falling back to default hardcoded contracts');
+        contractPortfolio = undefined;
+      }
+    } else {
+      console.log('📝 No config file specified, using default hardcoded contracts');
+    }
+    
+    // Run Basel3 verification
+    const result = await executeRiskLiquidityBasel3OptimMerkleVerification(
+      lcrThreshold,
+      nsfrThreshold, 
+      actusUrl,
+      contractPortfolio
+    );
+    
+    console.log('');
+    console.log('🏆 Basel3 Risk Verification completed via direct execution');
+    console.log('Result success:', result.success);
+    console.log('=== BASEL3 DIRECT EXECUTION SUCCESS ===');
+    
+    return {
+      success: result.success,
+      result: result,
+      executionMode: 'direct-basel3-verification',
+      timestamp: new Date().toISOString(),
+      processedParameters: {
+        lcrThreshold,
+        nsfrThreshold,
+        actusUrl,
+        configFile: resolvedConfigPath
+      },
+      contractStatus: result.contractStatus,
+      riskMetrics: result.riskMetrics
+    };
+    
+  } catch (error) {
+    console.error('');
+    console.error('💥 Direct Basel3 Verification failed:', error);
+    console.error('=== BASEL3 DIRECT EXECUTION FAILED ===');
+    
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      executionMode: 'direct-basel3-verification',
+      timestamp: new Date().toISOString(),
+      stackTrace: error instanceof Error ? error.stack : undefined
+    };
+  }
+}
+
+// Run the main function only if called directly (not imported)
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch(err => {
     console.error('❌ Error:', err);
     process.exit(1);
-});
+  });
+}

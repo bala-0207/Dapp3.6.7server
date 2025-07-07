@@ -264,6 +264,12 @@ export class ZKToolExecutor {
       return await this.executeDirectly(compiledScriptPath, parameters, toolName);
     }
     
+    // Force direct execution for Basel3 tool to ensure it works properly  
+    if (toolName === 'get-RiskLiquidityBasel3Optim-Merkle-verification-with-sign') {
+      console.log('🎯 Basel3 Tool detected - FORCING direct execution mode for reliability');
+      return await this.executeDirectly(compiledScriptPath, parameters, toolName);
+    }
+    
     // Choose execution mode based on configuration for other tools
     if (this.config.executionMode === 'direct') {
       console.log('🚀 Executing via direct execution...');
@@ -383,6 +389,21 @@ export class ZKToolExecutor {
               console.error('❌ executeBSDIVerificationDirect function not found in module');
               console.error('Available functions:', Object.keys(scriptModule).filter(key => typeof scriptModule[key] === 'function'));
               throw new Error('executeBSDIVerificationDirect function not found in module. Available functions: ' + Object.keys(scriptModule).filter(key => typeof scriptModule[key] === 'function').join(', '));
+            }
+            break;
+            
+          case 'get-RiskLiquidityBasel3Optim-Merkle-verification-with-sign':
+            console.log('🎯 Executing Basel3 verification via direct function call');
+            console.log('📋 Available functions in module:', Object.keys(scriptModule));
+            
+            if (scriptModule.executeBasel3VerificationDirect) {
+              console.log('✅ executeBasel3VerificationDirect function found - calling now...');
+              result = await scriptModule.executeBasel3VerificationDirect(parameters);
+              console.log('✅ executeBasel3VerificationDirect completed successfully');
+            } else {
+              console.error('❌ executeBasel3VerificationDirect function not found in module');
+              console.error('Available functions:', Object.keys(scriptModule).filter(key => typeof scriptModule[key] === 'function'));
+              throw new Error('executeBasel3VerificationDirect function not found in module. Available functions: ' + Object.keys(scriptModule).filter(key => typeof scriptModule[key] === 'function').join(', '));
             }
             break;
             
@@ -742,27 +763,42 @@ export class ZKToolExecutor {
       case 'get-RiskLiquidityBasel3Optim-Merkle-verification-with-sign':
         const lcrThreshold = parameters.lcrThreshold || parameters.liquidityThreshold || 100;
         const nsfrThreshold = parameters.nsfrThreshold || 100;
+        // Use relative paths that will be resolved by the script's path resolution logic
+        const configFilePath = parameters.configFilePath || 'basel3-VALID-1.json';
+        const actusUrl = parameters.actusUrl || process.env.ACTUS_SERVER_URL || 'http://localhost:8083/eventsBatch';
+        
         args.push(String(lcrThreshold));
         args.push(String(nsfrThreshold));
-        console.log(`Added Basel3 Risk arg 1 (lcrThreshold): "${lcrThreshold}"`);
-        console.log(`Added Basel3 Risk arg 2 (nsfrThreshold): "${nsfrThreshold}"`);
+        args.push(String(actusUrl));
+        args.push(String(configFilePath));
+        
+        console.log(`Added Basel3 arg 1 (lcrThreshold): "${lcrThreshold}"`);
+        console.log(`Added Basel3 arg 2 (nsfrThreshold): "${nsfrThreshold}"`);
+        console.log(`Added Basel3 arg 3 (actusUrl): "${actusUrl}"`);
+        console.log(`Added Basel3 arg 4 (configFilePath): "${configFilePath}"`);
+        console.log('Note: Config file path will be auto-resolved to src/data/RISK/Basel3/CONFIG directory');
         break;
 
       case 'get-StablecoinProofOfReservesRisk-verification-with-sign':
-        const stablecoinThreshold = parameters.liquidityThreshold || 100;
-        const minReserveRatio = parameters.minReserveRatio || 20;
-        const maxVolatility = parameters.maxVolatility || 25;
-        const minLiquidityBuffer = parameters.minLiquidityBuffer || 80;
+        // Stablecoin verification expects: [threshold, actusUrl, configFilePath, executionMode, jurisdiction]
+        const stablecoinThreshold = parameters.liquidityThreshold || parameters.threshold || 100;
+        const stablecoinActusUrl = parameters.actusUrl || process.env.ACTUS_SERVER_URL || 'http://localhost:8083/eventsBatch';
+        const stablecoinConfigFilePath = parameters.configFilePath || 'src/data/RISK/StableCoin/CONFIG/US/StableCoin-VALID-1.json';
+        const stablecoinExecutionMode = parameters.executionMode || 'ultra_strict';
+        const stablecoinJurisdiction = parameters.jurisdiction || 'US';
         
         args.push(String(stablecoinThreshold));
-        args.push(String(minReserveRatio));
-        args.push(String(maxVolatility));
-        args.push(String(minLiquidityBuffer));
+        args.push(String(stablecoinActusUrl));
+        args.push(String(stablecoinConfigFilePath));
+        args.push(String(stablecoinExecutionMode));
+        args.push(String(stablecoinJurisdiction));
         
-        console.log(`Added StableCoin arg 1 (threshold): "${stablecoinThreshold}"`);
-        console.log(`Added StableCoin arg 2 (minReserveRatio): "${minReserveRatio}"`);
-        console.log(`Added StableCoin arg 3 (maxVolatility): "${maxVolatility}"`);
-        console.log(`Added StableCoin arg 4 (minLiquidityBuffer): "${minLiquidityBuffer}"`);
+        console.log(`Added Stablecoin arg 1 (threshold): "${stablecoinThreshold}"`);
+        console.log(`Added Stablecoin arg 2 (ACTUS URL): "${stablecoinActusUrl}"`);
+        console.log(`Added Stablecoin arg 3 (config file path): "${stablecoinConfigFilePath}"`);
+        console.log(`Added Stablecoin arg 4 (execution mode): "${stablecoinExecutionMode}"`);
+        console.log(`Added Stablecoin arg 5 (jurisdiction): "${stablecoinJurisdiction}"`);
+        console.log('Note: Config file path will be auto-resolved to src/data/RISK/StableCoin/CONFIG directory');
         break;
 
       case 'get-BPI-compliance-verification':
