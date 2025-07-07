@@ -258,6 +258,12 @@ export class ZKToolExecutor {
       return await this.executeDirectly(compiledScriptPath, parameters, toolName);
     }
     
+    // Force direct execution for BSDI tool to ensure it works properly  
+    if (toolName === 'get-BSDI-compliance-verification') {
+      console.log('🎯 BSDI Tool detected - FORCING direct execution mode for reliability');
+      return await this.executeDirectly(compiledScriptPath, parameters, toolName);
+    }
+    
     // Choose execution mode based on configuration for other tools
     if (this.config.executionMode === 'direct') {
       console.log('🚀 Executing via direct execution...');
@@ -362,6 +368,21 @@ export class ZKToolExecutor {
               result = await scriptModule.executeGLEIFVerificationDirect(parameters);
             } else {
               throw new Error('executeGLEIFVerificationDirect function not found in module');
+            }
+            break;
+            
+          case 'get-BSDI-compliance-verification':
+            console.log('🎯 Executing BSDI verification via direct function call');
+            console.log('📋 Available functions in module:', Object.keys(scriptModule));
+            
+            if (scriptModule.executeBSDIVerificationDirect) {
+              console.log('✅ executeBSDIVerificationDirect function found - calling now...');
+              result = await scriptModule.executeBSDIVerificationDirect(parameters);
+              console.log('✅ executeBSDIVerificationDirect completed successfully');
+            } else {
+              console.error('❌ executeBSDIVerificationDirect function not found in module');
+              console.error('Available functions:', Object.keys(scriptModule).filter(key => typeof scriptModule[key] === 'function'));
+              throw new Error('executeBSDIVerificationDirect function not found in module. Available functions: ' + Object.keys(scriptModule).filter(key => typeof scriptModule[key] === 'function').join(', '));
             }
             break;
             
@@ -758,6 +779,16 @@ export class ZKToolExecutor {
         console.log(`Added BPI arg 2 (expectedProcessFile): "${expectedProcessFile}"`);
         console.log(`Added BPI arg 3 (actualProcessFile): "${actualProcessFile}"`);
         console.log('Note: File paths will be auto-resolved to src/data/scf/process/EXPECTED and ACTUAL directories');
+        break;
+
+      case 'get-BSDI-compliance-verification':
+        // Use relative paths that will be resolved by the script's path resolution logic
+        const bolFilePath = parameters.filePath || 'BOL-VALID-1.json';
+        
+        args.push(String(bolFilePath));
+        
+        console.log(`Added BSDI arg 1 (filePath): "${bolFilePath}"`);
+        console.log('Note: File path will be auto-resolved to src/data/scf/BILLOFLADING directory');
         break;
 
       default:

@@ -1,5 +1,6 @@
 import { BusinessStdIntegrityOptimMerkleTestUtils } from './BusinessStdIntegrityOptimMerkleVerificationTestWithSignUtils.js';
 import * as fs from 'fs';
+import path from 'path';
 
 /**
  * Business Standard Integrity Optimized Merkle Verification Test
@@ -43,15 +44,30 @@ async function main() {
 
   const filePath = args[0];
   
+  // Resolve full path for BOL file based on project structure  
+  const projectRoot = process.cwd();
+  console.log('🏠 Project root:', projectRoot);
+  
+  let resolvedFilePath = filePath;
+  
+  // If the file is just a filename (not full path), resolve it to the correct directory
+  if (!path.isAbsolute(filePath) && !filePath.includes('/') && !filePath.includes('\\')) {
+    resolvedFilePath = path.join(projectRoot, 'src', 'data', 'scf', 'BILLOFLADING', filePath);
+    console.log('📂 Resolved BOL file path:', resolvedFilePath);
+  }
+  
+  console.log('');
+  console.log('📋 Final file path:', resolvedFilePath);
+  
   try {
     // Load and validate BL data
-    console.log(`📂 Loading BL data from: ${filePath}`);
+    console.log(`📂 Loading BL data from: ${resolvedFilePath}`);
     
-    if (!fs.existsSync(filePath)) {
-      throw new Error(`File not found: ${filePath}`);
+    if (!fs.existsSync(resolvedFilePath)) {
+      throw new Error(`File not found: ${resolvedFilePath}`);
     }
     
-    const blDataRaw = fs.readFileSync(filePath, 'utf8');
+    const blDataRaw = fs.readFileSync(resolvedFilePath, 'utf8');
     const blData = JSON.parse(blDataRaw);
     
     console.log('✅ BL data loaded successfully');
@@ -125,9 +141,98 @@ process.on('unhandledRejection', (reason, promise) => {
   process.exit(1);
 });
 
-// Run the test
-main().catch((error) => {
-  console.error('\n💥 MAIN FUNCTION ERROR:', error.message);
-  console.error('Stack trace:', error.stack);
-  process.exit(1);
-});
+// Export function for direct execution from integrated server
+export async function executeBSDIVerificationDirect(parameters: any): Promise<any> {
+  try {
+    console.log('=== BSDI DIRECT EXECUTION START ===');
+    console.log('🔧 Direct BSDI Verification execution started');
+    console.log('Parameters received:', JSON.stringify(parameters, null, 2));
+    console.log('Execution Mode: DIRECT FUNCTION CALL (no CLI args)');
+    console.log('======================================');
+    
+    const bolFile = parameters.filePath || 'BOL-VALID-1.json';
+    
+    console.log('📋 Using parameters:');
+    console.log('  BOL File:', bolFile);
+    console.log('');
+    
+    // Resolve full path for BOL file based on project structure
+    const projectRoot = process.cwd();
+    console.log('🏠 Project root:', projectRoot);
+    
+    let resolvedFilePath = bolFile;
+    
+    // If the file is just a filename (not full path), resolve it to the correct directory
+    if (!path.isAbsolute(bolFile) && !bolFile.includes('/') && !bolFile.includes('\\')) {
+      resolvedFilePath = path.join(projectRoot, 'src', 'data', 'scf', 'BILLOFLADING', bolFile);
+      console.log('📂 Resolved BOL file path:', resolvedFilePath);
+    }
+    
+    console.log('');
+    console.log('📋 Final file path:', resolvedFilePath);
+    console.log('');
+    
+    console.log('📋 Loading BOL data...');
+    
+    // Load and validate BL data
+    if (!fs.existsSync(resolvedFilePath)) {
+      throw new Error(`BOL file not found: ${resolvedFilePath}`);
+    }
+    
+    const blDataRaw = fs.readFileSync(resolvedFilePath, 'utf8');
+    const blData = JSON.parse(blDataRaw);
+    
+    console.log('✅ BOL data loaded successfully');
+    console.log(`📄 Document Type: ${blData.transportDocumentTypeCode || 'Unknown'}`);
+    console.log(`😢 Carrier: ${blData.carrierCode || 'Unknown'}`);
+    console.log(`📋 Document Reference: ${blData.transportDocumentReference || 'Unknown'}`);
+    console.log('');
+    
+    console.log('🚀 Starting Business Standard Integrity verification...');
+    
+    // Run comprehensive BSDI test
+    const testResult = await BusinessStdIntegrityOptimMerkleTestUtils.runComprehensiveTest(blData);
+    
+    console.log('');
+    console.log('🏆 BSDI Verification completed via direct execution');
+    console.log('Result success:', testResult.success);
+    console.log('=== BSDI DIRECT EXECUTION SUCCESS ===');
+    
+    return {
+      success: testResult.success,
+      result: testResult,
+      executionMode: 'direct-bsdi-verification',
+      timestamp: new Date().toISOString(),
+      processedParameters: {
+        bolFile: resolvedFilePath
+      },
+      documentInfo: {
+        documentType: blData.transportDocumentTypeCode,
+        carrier: blData.carrierCode,
+        reference: blData.transportDocumentReference
+      }
+    };
+    
+  } catch (error) {
+    console.error('');
+    console.error('💥 Direct BSDI Verification failed:', error);
+    console.error('=== BSDI DIRECT EXECUTION FAILED ===');
+    
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      executionMode: 'direct-bsdi-verification',
+      timestamp: new Date().toISOString(),
+      stackTrace: error instanceof Error ? error.stack : undefined
+    };
+  }
+}
+
+// Run the test only if called directly (not imported)
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch((error) => {
+    console.error('\n💥 MAIN FUNCTION ERROR:', error.message);
+    console.error('Stack trace:', error.stack);
+    process.exit(1);
+  });
+}
