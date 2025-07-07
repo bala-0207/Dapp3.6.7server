@@ -252,7 +252,13 @@ export class ZKToolExecutor {
 
     console.log('✅ Compiled JavaScript file found');
     
-    // Choose execution mode based on configuration
+    // Force direct execution for BPI tool to ensure it works properly
+    if (toolName === 'get-BPI-compliance-verification') {
+      console.log('🎯 BPI Tool detected - FORCING direct execution mode for reliability');
+      return await this.executeDirectly(compiledScriptPath, parameters, toolName);
+    }
+    
+    // Choose execution mode based on configuration for other tools
     if (this.config.executionMode === 'direct') {
       console.log('🚀 Executing via direct execution...');
       return await this.executeDirectly(compiledScriptPath, parameters, toolName);
@@ -375,8 +381,24 @@ export class ZKToolExecutor {
             }
             break;
             
+          case 'get-BPI-compliance-verification':
+            console.log('🎯 Executing BPI verification via direct function call');
+            console.log('📋 Available functions in module:', Object.keys(scriptModule));
+            
+            if (scriptModule.executeBPIVerificationDirect) {
+              console.log('✅ executeBPIVerificationDirect function found - calling now...');
+              result = await scriptModule.executeBPIVerificationDirect(parameters);
+              console.log('✅ executeBPIVerificationDirect completed successfully');
+            } else {
+              console.error('❌ executeBPIVerificationDirect function not found in module');
+              console.error('Available functions:', Object.keys(scriptModule).filter(key => typeof scriptModule[key] === 'function'));
+              throw new Error('executeBPIVerificationDirect function not found in module. Available functions: ' + Object.keys(scriptModule).filter(key => typeof scriptModule[key] === 'function').join(', '));
+            }
+            break;
+            
           default:
             throw new Error(`Direct execution not implemented for tool: ${toolName}`);
+            break;
         }
         
         clearTimeout(timeout);
@@ -720,6 +742,22 @@ export class ZKToolExecutor {
         console.log(`Added StableCoin arg 2 (minReserveRatio): "${minReserveRatio}"`);
         console.log(`Added StableCoin arg 3 (maxVolatility): "${maxVolatility}"`);
         console.log(`Added StableCoin arg 4 (minLiquidityBuffer): "${minLiquidityBuffer}"`);
+        break;
+
+      case 'get-BPI-compliance-verification':
+        const processType = parameters.processType || 'SCF';
+        // Use relative paths that will be resolved by the script's path resolution logic
+        const expectedProcessFile = parameters.expectedProcessFile || 'SCF-Expected.bpmn';
+        const actualProcessFile = parameters.actualProcessFile || 'SCF-Accepted1.bpmn';
+        
+        args.push(String(processType));
+        args.push(String(expectedProcessFile));
+        args.push(String(actualProcessFile));
+        
+        console.log(`Added BPI arg 1 (processType): "${processType}"`);
+        console.log(`Added BPI arg 2 (expectedProcessFile): "${expectedProcessFile}"`);
+        console.log(`Added BPI arg 3 (actualProcessFile): "${actualProcessFile}"`);
+        console.log('Note: File paths will be auto-resolved to src/data/scf/process/EXPECTED and ACTUAL directories');
         break;
 
       default:

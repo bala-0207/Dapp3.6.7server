@@ -1,5 +1,6 @@
 import { BusinessProcessIntegrityOptimMerkleTestUtils } from './BusinessProcessIntegrityOptimMerkleVerificationFileTestWithSignUtils.js';
 import parseBpmn from '../../utils/parsebpmn.js';
+import path from 'path';
 
 /**
  * Business Process Integrity OptimMerkle Verification Test (Main Entry Point)
@@ -21,7 +22,20 @@ import parseBpmn from '../../utils/parsebpmn.js';
  */
 
 // Parse command line arguments (same as existing system)
-const [, , businessProcessType, expectedBPMNFileName, actualBPMNFileName] = process.argv;
+// Also support module-based execution from integrated server
+let businessProcessType: string | undefined;
+let expectedBPMNFileName: string | undefined;
+let actualBPMNFileName: string | undefined;
+
+// Check if arguments are provided via command line
+if (process.argv.length >= 5) {
+  [, , businessProcessType, expectedBPMNFileName, actualBPMNFileName] = process.argv;
+} else if (process.env.BPI_PROCESS_TYPE && process.env.BPI_EXPECTED_FILE && process.env.BPI_ACTUAL_FILE) {
+  // Support environment variables for integrated server
+  businessProcessType = process.env.BPI_PROCESS_TYPE;
+  expectedBPMNFileName = process.env.BPI_EXPECTED_FILE;
+  actualBPMNFileName = process.env.BPI_ACTUAL_FILE;
+}
 
 async function main() {
   console.log('🌳 Business Process Integrity OptimMerkle Verification Test');
@@ -47,11 +61,37 @@ async function main() {
   try {
     // ===== STEP 1: PARSE BPMN FILES (same as existing system) =====
     console.log('📋 Parsing BPMN files...');
-    const expectedPath = await parseBpmn(expectedBPMNFileName) || "";
-    const actualPath = await parseBpmn(actualBPMNFileName) || "";
+    
+    // Resolve full paths for BPMN files based on project structure
+    const projectRoot = process.cwd();
+    console.log('🏠 Project root:', projectRoot);
+    
+    // Construct full paths to the BPMN files
+    let expectedFilePath = expectedBPMNFileName;
+    let actualFilePath = actualBPMNFileName;
+    
+    // If the files are just filenames (not full paths), resolve them to the correct directories
+    if (!path.isAbsolute(expectedBPMNFileName) && !expectedBPMNFileName.includes('/') && !expectedBPMNFileName.includes('\\')) {
+      expectedFilePath = path.join(projectRoot, 'src', 'data', 'scf', 'process', 'EXPECTED', expectedBPMNFileName);
+      console.log('📂 Resolved expected file path:', expectedFilePath);
+    }
+    
+    if (!path.isAbsolute(actualBPMNFileName) && !actualBPMNFileName.includes('/') && !actualBPMNFileName.includes('\\')) {
+      actualFilePath = path.join(projectRoot, 'src', 'data', 'scf', 'process', 'ACTUAL', actualBPMNFileName);
+      console.log('📂 Resolved actual file path:', actualFilePath);
+    }
+    
+    console.log('');
+    console.log('📋 Final file paths:');
+    console.log('  Expected BPMN:', expectedFilePath);
+    console.log('  Actual BPMN:', actualFilePath);
+    console.log('');
+    
+    const expectedPath = await parseBpmn(expectedFilePath) || "";
+    const actualPath = await parseBpmn(actualFilePath) || "";
     
     if (!expectedPath || !actualPath) {
-      throw new Error('Failed to parse BPMN files. Please check file paths and content.');
+      throw new Error(`Failed to parse BPMN files. Please check file paths and content.\nExpected: ${expectedFilePath}\nActual: ${actualFilePath}`);
     }
     
     console.log('✅ BPMN files parsed successfully');
@@ -68,8 +108,8 @@ async function main() {
       expectedPath, 
       actualPath,
       {
-        expectedFile: expectedBPMNFileName,
-        actualFile: actualBPMNFileName
+        expectedFile: expectedFilePath,
+        actualFile: actualFilePath
       }
     );
     
@@ -142,10 +182,120 @@ process.on('unhandledRejection', (reason, promise) => {
   process.exit(1);
 });
 
-// Run the main function
-main().catch((error) => {
-  console.error('');
-  console.error('💥 MAIN FUNCTION ERROR:', error.message);
-  console.error('🚨 Stack trace:', error.stack);
-  process.exit(1);
-});
+// Export function for direct execution from integrated server
+export async function executeBPIVerificationDirect(parameters: any): Promise<any> {
+  try {
+    console.log('=== BPI DIRECT EXECUTION START ===');
+    console.log('🔧 Direct BPI Verification execution started');
+    console.log('Parameters received:', JSON.stringify(parameters, null, 2));
+    console.log('Execution Mode: DIRECT FUNCTION CALL (no CLI args)');
+    console.log('======================================');
+    
+    const processType = parameters.processType || 'SCF';
+    const expectedFile = parameters.expectedProcessFile || 'SCF-Expected.bpmn';
+    const actualFile = parameters.actualProcessFile || 'SCF-Accepted1.bpmn';
+    
+    console.log('📋 Using parameters:');
+    console.log('  Process Type:', processType);
+    console.log('  Expected File:', expectedFile);
+    console.log('  Actual File:', actualFile);
+    console.log('');
+    
+    // Resolve full paths for BPMN files based on project structure
+    const projectRoot = process.cwd();
+    console.log('🏠 Project root:', projectRoot);
+    
+    // Construct full paths to the BPMN files
+    let expectedFilePath = expectedFile;
+    let actualFilePath = actualFile;
+    
+    // If the files are just filenames (not full paths), resolve them to the correct directories
+    if (!path.isAbsolute(expectedFile) && !expectedFile.includes('/') && !expectedFile.includes('\\')) {
+      expectedFilePath = path.join(projectRoot, 'src', 'data', 'scf', 'process', 'EXPECTED', expectedFile);
+      console.log('📂 Resolved expected file path:', expectedFilePath);
+    }
+    
+    if (!path.isAbsolute(actualFile) && !actualFile.includes('/') && !actualFile.includes('\\')) {
+      actualFilePath = path.join(projectRoot, 'src', 'data', 'scf', 'process', 'ACTUAL', actualFile);
+      console.log('📂 Resolved actual file path:', actualFilePath);
+    }
+    
+    console.log('');
+    console.log('📋 Final file paths:');
+    console.log('  Expected BPMN:', expectedFilePath);
+    console.log('  Actual BPMN:', actualFilePath);
+    console.log('');
+    
+    console.log('📋 Parsing BPMN files...');
+    
+    // Parse BPMN files using the resolved paths
+    const expectedPath = await parseBpmn(expectedFilePath) || "";
+    const actualPath = await parseBpmn(actualFilePath) || "";
+    
+    if (!expectedPath || !actualPath) {
+      throw new Error(`Failed to parse BPMN files. Please check file paths and content.\nExpected: ${expectedFilePath}\nActual: ${actualFilePath}`);
+    }
+    
+    console.log('✅ BPMN files parsed successfully');
+    console.log('📋 Expected Pattern:', expectedPath);
+    console.log('🎯 Actual Path:', actualPath);
+    console.log('');
+    
+    console.log('🚀 Starting OptimMerkle Enhanced Verification...');
+    
+    // Run OptimMerkle verification
+    const result = await BusinessProcessIntegrityOptimMerkleTestUtils.runOptimMerkleVerification(
+      processType,
+      expectedPath,
+      actualPath,
+      {
+        expectedFile: expectedFilePath,
+        actualFile: actualFilePath
+      }
+    );
+    
+    console.log('');
+    console.log('🏆 BPI Verification completed via direct execution');
+    console.log('Result success:', result.success);
+    console.log('=== BPI DIRECT EXECUTION SUCCESS ===');
+    
+    return {
+      success: result.success,
+      result: result,
+      executionMode: 'direct-bpi-verification',
+      timestamp: new Date().toISOString(),
+      processedParameters: {
+        processType,
+        expectedFile: expectedFilePath,
+        actualFile: actualFilePath
+      },
+      parsedPaths: {
+        expectedPath,
+        actualPath
+      }
+    };
+    
+  } catch (error) {
+    console.error('');
+    console.error('💥 Direct BPI Verification failed:', error);
+    console.error('=== BPI DIRECT EXECUTION FAILED ===');
+    
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      executionMode: 'direct-bpi-verification',
+      timestamp: new Date().toISOString(),
+      stackTrace: error instanceof Error ? error.stack : undefined
+    };
+  }
+}
+
+// Run the main function only if called directly (not imported)
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch((error) => {
+    console.error('');
+    console.error('💥 MAIN FUNCTION ERROR:', error.message);
+    console.error('🚨 Stack trace:', error.stack);
+    process.exit(1);
+  });
+}
