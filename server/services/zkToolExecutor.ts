@@ -270,6 +270,18 @@ export class ZKToolExecutor {
       return await this.executeDirectly(compiledScriptPath, parameters, toolName);
     }
     
+    // Force direct execution for Stablecoin tool to ensure it works properly  
+    if (toolName === 'get-StablecoinProofOfReservesRisk-verification-with-sign') {
+      console.log('🎯 Stablecoin Tool detected - FORCING direct execution mode for reliability');
+      return await this.executeDirectly(compiledScriptPath, parameters, toolName);
+    }
+    
+    // Force direct execution for Advanced Risk tool to ensure it works properly  
+    if (toolName === 'get-RiskLiquidityAdvancedOptimMerkle-verification-with-sign') {
+      console.log('🎯 Advanced Risk Tool detected - FORCING direct execution mode for reliability');
+      return await this.executeDirectly(compiledScriptPath, parameters, toolName);
+    }
+    
     // Choose execution mode based on configuration for other tools
     if (this.config.executionMode === 'direct') {
       console.log('🚀 Executing via direct execution...');
@@ -435,6 +447,36 @@ export class ZKToolExecutor {
               console.error('❌ executeBPIVerificationDirect function not found in module');
               console.error('Available functions:', Object.keys(scriptModule).filter(key => typeof scriptModule[key] === 'function'));
               throw new Error('executeBPIVerificationDirect function not found in module. Available functions: ' + Object.keys(scriptModule).filter(key => typeof scriptModule[key] === 'function').join(', '));
+            }
+            break;
+            
+          case 'get-StablecoinProofOfReservesRisk-verification-with-sign':
+            console.log('🎯 Executing Stablecoin verification via direct function call');
+            console.log('📋 Available functions in module:', Object.keys(scriptModule));
+            
+            if (scriptModule.executeStablecoinVerificationDirect) {
+              console.log('✅ executeStablecoinVerificationDirect function found - calling now...');
+              result = await scriptModule.executeStablecoinVerificationDirect(parameters);
+              console.log('✅ executeStablecoinVerificationDirect completed successfully');
+            } else {
+              console.error('❌ executeStablecoinVerificationDirect function not found in module');
+              console.error('Available functions:', Object.keys(scriptModule).filter(key => typeof scriptModule[key] === 'function'));
+              throw new Error('executeStablecoinVerificationDirect function not found in module. Available functions: ' + Object.keys(scriptModule).filter(key => typeof scriptModule[key] === 'function').join(', '));
+            }
+            break;
+            
+          case 'get-RiskLiquidityAdvancedOptimMerkle-verification-with-sign':
+            console.log('🎯 Executing Advanced Risk verification via direct function call');
+            console.log('📋 Available functions in module:', Object.keys(scriptModule));
+            
+            if (scriptModule.executeAdvancedVerificationDirect) {
+              console.log('✅ executeAdvancedVerificationDirect function found - calling now...');
+              result = await scriptModule.executeAdvancedVerificationDirect(parameters);
+              console.log('✅ executeAdvancedVerificationDirect completed successfully');
+            } else {
+              console.error('❌ executeAdvancedVerificationDirect function not found in module');
+              console.error('Available functions:', Object.keys(scriptModule).filter(key => typeof scriptModule[key] === 'function'));
+              throw new Error('executeAdvancedVerificationDirect function not found in module. Available functions: ' + Object.keys(scriptModule).filter(key => typeof scriptModule[key] === 'function').join(', '));
             }
             break;
             
@@ -756,8 +798,21 @@ export class ZKToolExecutor {
 
       case 'get-RiskLiquidityAdvancedOptimMerkle-verification-with-sign':
         const advThreshold = parameters.liquidityThreshold || 95;
+        // SERVER HANDLES ACTUS URL: Use server's environment variable, not UI parameter
+        const advActusUrl = process.env.ACTUS_SERVER_URL || 'http://3.88.158.37:8083/eventsBatch';
+        const advConfigFilePath = parameters.configFilePath || 'Advanced-VALID-1.json';
+        const advExecutionMode = parameters.executionMode || 'ultra_strict';
+        
         args.push(String(advThreshold));
+        args.push(String(advActusUrl));
+        args.push(String(advConfigFilePath));
+        args.push(String(advExecutionMode));
+        
         console.log(`Added Advanced Risk arg 1 (threshold): "${advThreshold}"`);
+        console.log(`Added Advanced Risk arg 2 (ACTUS URL from SERVER ENV): "${advActusUrl}"`);
+        console.log(`Added Advanced Risk arg 3 (config file path): "${advConfigFilePath}"`);
+        console.log(`Added Advanced Risk arg 4 (execution mode): "${advExecutionMode}"`);
+        console.log('Note: ACTUS URL managed by server, Config file path auto-resolved to src/data/RISK/Advanced/CONFIG');
         break;
 
       case 'get-RiskLiquidityBasel3Optim-Merkle-verification-with-sign':
@@ -765,7 +820,8 @@ export class ZKToolExecutor {
         const nsfrThreshold = parameters.nsfrThreshold || 100;
         // Use relative paths that will be resolved by the script's path resolution logic
         const configFilePath = parameters.configFilePath || 'basel3-VALID-1.json';
-        const actusUrl = parameters.actusUrl || process.env.ACTUS_SERVER_URL || 'http://localhost:8083/eventsBatch';
+        // SERVER HANDLES ACTUS URL: Use server's environment variable, not UI parameter
+        const actusUrl = process.env.ACTUS_SERVER_URL || 'http://3.88.158.37:8083/eventsBatch';
         
         args.push(String(lcrThreshold));
         args.push(String(nsfrThreshold));
@@ -774,15 +830,16 @@ export class ZKToolExecutor {
         
         console.log(`Added Basel3 arg 1 (lcrThreshold): "${lcrThreshold}"`);
         console.log(`Added Basel3 arg 2 (nsfrThreshold): "${nsfrThreshold}"`);
-        console.log(`Added Basel3 arg 3 (actusUrl): "${actusUrl}"`);
+        console.log(`Added Basel3 arg 3 (actusUrl from SERVER ENV): "${actusUrl}"`);
         console.log(`Added Basel3 arg 4 (configFilePath): "${configFilePath}"`);
-        console.log('Note: Config file path will be auto-resolved to src/data/RISK/Basel3/CONFIG directory');
+        console.log('Note: ACTUS URL managed by server, Config file path auto-resolved to src/data/RISK/Basel3/CONFIG');
         break;
 
       case 'get-StablecoinProofOfReservesRisk-verification-with-sign':
         // Stablecoin verification expects: [threshold, actusUrl, configFilePath, executionMode, jurisdiction]
         const stablecoinThreshold = parameters.liquidityThreshold || parameters.threshold || 100;
-        const stablecoinActusUrl = parameters.actusUrl || process.env.ACTUS_SERVER_URL || 'http://localhost:8083/eventsBatch';
+        // SERVER HANDLES ACTUS URL: Use server's environment variable, not UI parameter
+        const stablecoinActusUrl = process.env.ACTUS_SERVER_URL || 'http://3.88.158.37:8083/eventsBatch';
         const stablecoinConfigFilePath = parameters.configFilePath || 'src/data/RISK/StableCoin/CONFIG/US/StableCoin-VALID-1.json';
         const stablecoinExecutionMode = parameters.executionMode || 'ultra_strict';
         const stablecoinJurisdiction = parameters.jurisdiction || 'US';
@@ -794,11 +851,11 @@ export class ZKToolExecutor {
         args.push(String(stablecoinJurisdiction));
         
         console.log(`Added Stablecoin arg 1 (threshold): "${stablecoinThreshold}"`);
-        console.log(`Added Stablecoin arg 2 (ACTUS URL): "${stablecoinActusUrl}"`);
+        console.log(`Added Stablecoin arg 2 (ACTUS URL from SERVER ENV): "${stablecoinActusUrl}"`);
         console.log(`Added Stablecoin arg 3 (config file path): "${stablecoinConfigFilePath}"`);
         console.log(`Added Stablecoin arg 4 (execution mode): "${stablecoinExecutionMode}"`);
         console.log(`Added Stablecoin arg 5 (jurisdiction): "${stablecoinJurisdiction}"`);
-        console.log('Note: Config file path will be auto-resolved to src/data/RISK/StableCoin/CONFIG directory');
+        console.log('Note: ACTUS URL managed by server, Config file path auto-resolved to src/data/RISK/StableCoin/CONFIG');
         break;
 
       case 'get-BPI-compliance-verification':
@@ -825,6 +882,21 @@ export class ZKToolExecutor {
         
         console.log(`Added BSDI arg 1 (filePath): "${bolFilePath}"`);
         console.log('Note: File path will be auto-resolved to src/data/scf/BILLOFLADING directory');
+        break;
+
+      case 'get-RiskLiquidityACTUS-Verifier-Test_adv_zk':
+      case 'get-RiskLiquidityACTUS-Verifier-Test_Basel3_Withsign':
+        // Risk & Liquidity verification expects: [threshold, actusUrl]
+        const riskThreshold = parameters.threshold || parameters.liquidityThreshold || 95;
+        // SERVER HANDLES ACTUS URL: Use server's environment variable, not UI parameter
+        const riskActusUrl = process.env.ACTUS_SERVER_URL || 'http://3.88.158.37:8083/eventsBatch';
+
+        args.push(String(riskThreshold));
+        args.push(String(riskActusUrl));
+        
+        console.log(`Added Risk arg 1 (threshold): "${riskThreshold}"`);
+        console.log(`Added Risk arg 2 (ACTUS URL from SERVER ENV): "${riskActusUrl}"`);
+        console.log('Note: ACTUS URL managed by server environment');
         break;
 
       default:

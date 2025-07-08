@@ -8,6 +8,8 @@
  */
 
 import { Field, Mina, PrivateKey, AccountUpdate, CircuitString, Poseidon, Signature, UInt64 } from 'o1js';
+import dotenv from 'dotenv';
+dotenv.config();
 import { getPrivateKeyFor } from '../../core/OracleRegistry.js';
 import { 
     fetchRiskLiquidityStableCoinOptimMerkleData,
@@ -471,8 +473,177 @@ async function main() {
     }
 }
 
-// Run the main function
-main().catch(err => {
-    console.error('❌ Error:', err);
-    process.exit(1);
-});
+// Only run main() if this script is executed directly (not imported)
+if (import.meta.url === `file://${process.argv[1]}`) {
+    main().catch(err => {
+        console.error('❌ Error:', err);
+        process.exit(1);
+    });
+}
+
+// Export function for direct execution from integrated server
+export async function executeStablecoinVerificationDirect(parameters: any): Promise<any> {
+  try {
+    console.log('=== STABLECOIN DIRECT EXECUTION START ===');
+    console.log('🔧 Direct Stablecoin Risk Verification execution started');
+    console.log('Parameters received:', JSON.stringify(parameters, null, 2));
+    console.log('Execution Mode: DIRECT FUNCTION CALL (no CLI args)');
+    console.log('======================================');
+    
+    const liquidityThreshold = parameters.liquidityThreshold || parameters.threshold || 100;
+    const actusUrl = parameters.actusUrl || process.env.ACTUS_SERVER_URL || 'http://localhost:8083/eventsBatch';
+    const configFilePath = parameters.configFilePath || 'src/data/RISK/StableCoin/CONFIG/US/StableCoin-VALID-1.json';
+    const executionMode = parameters.executionMode || 'ultra_strict';
+    const jurisdiction = parameters.jurisdiction || 'US';
+    
+    console.log('📋 Using parameters:');
+    console.log('  Liquidity Threshold:', liquidityThreshold + '%');
+    console.log('  ACTUS URL:', actusUrl);
+    console.log('  Config File:', configFilePath);
+    console.log('  Execution Mode:', executionMode);
+    console.log('  Jurisdiction:', jurisdiction);
+    console.log('');
+    
+    // Validate jurisdiction parameter
+    if (!['US', 'EU'].includes(jurisdiction.toUpperCase())) {
+      throw new Error(`Invalid jurisdiction '${jurisdiction}'. Must be 'US' or 'EU'.`);
+    }
+    
+    // Resolve full path for config file based on project structure
+    const projectRoot = process.cwd();
+    console.log('🏠 Project root:', projectRoot);
+    
+    let resolvedConfigPath: string | undefined = undefined;
+    
+    if (configFilePath) {
+      let tempPath = configFilePath;
+      
+      // If the file is just a filename (not full path), resolve it to the correct directory
+      if (!configFilePath.includes('/') && !configFilePath.includes('\\')) {
+        tempPath = `src/data/RISK/StableCoin/CONFIG/${jurisdiction.toUpperCase()}/${configFilePath}`;
+        console.log('📂 Resolved config file path:', tempPath);
+      } else if (configFilePath.startsWith('./')) {
+        tempPath = configFilePath.replace('./', `${projectRoot}/`);
+        console.log('📂 Resolved relative path:', tempPath);
+      } else if (!configFilePath.startsWith('/') && !configFilePath.includes(':')) {
+        // Relative path - resolve relative to project root
+        tempPath = `${projectRoot}/${configFilePath}`;
+        console.log('📂 Resolved project relative path:', tempPath);
+      }
+      
+      resolvedConfigPath = tempPath;
+    }
+    
+    console.log('');
+    console.log('📋 Final config path:', resolvedConfigPath || 'None (using defaults)');
+    console.log('');
+    
+    console.log('🚀 Starting Stablecoin Risk Liquidity verification...');
+    
+    // Load contract portfolio if config file provided
+    let contractPortfolio: any[] | undefined = undefined;
+    let configConcentrationLimit = 25; // Default concentration limit
+    
+    if (resolvedConfigPath) {
+      try {
+        const fs = await import('fs/promises');
+        const fileContent = await fs.readFile(resolvedConfigPath, 'utf-8');
+        const parsed = JSON.parse(fileContent);
+        contractPortfolio = parsed.contracts || parsed;
+        
+        // Read concentration limit from config if available
+        if (parsed.portfolioMetadata?.complianceTarget?.concentrationLimit) {
+          configConcentrationLimit = parsed.portfolioMetadata.complianceTarget.concentrationLimit;
+          console.log(`📊 Using concentration limit from config: ${configConcentrationLimit}%`);
+        }
+        
+        console.log(`✅ Successfully loaded ${contractPortfolio?.length || 0} contracts from config`);
+        console.log(`📆 Portfolio ID: ${parsed.portfolioMetadata?.portfolioId || 'Unknown'}`);
+        console.log(`💰 Total Notional: ${parsed.portfolioMetadata?.totalNotional || 'Unknown'}`);
+        
+      } catch (error) {
+        console.error(`❌ Failed to load config from ${resolvedConfigPath}:`, error);
+        console.log('🔄 Falling back to default hardcoded contracts');
+        contractPortfolio = undefined;
+      }
+    } else {
+      console.log('📝 No config file specified, using default hardcoded contracts');
+    }
+    
+    // Load jurisdiction-specific thresholds
+    console.log(`📊 Loading ${jurisdiction.toUpperCase()} jurisdiction thresholds...`);
+    
+    let jurisdictionThresholds;
+    try {
+      const fs = await import('fs/promises');
+      const settingsPath = `${projectRoot}/src/data/RISK/StableCoin/SETTINGS/${jurisdiction.toUpperCase()}-Professional-Thresholds.json`;
+      const thresholdsContent = await fs.readFile(settingsPath, 'utf-8');
+      jurisdictionThresholds = JSON.parse(thresholdsContent).operationalThresholds;
+      console.log(`✅ Loaded ${jurisdiction.toUpperCase()} professional thresholds`);
+    } catch (error) {
+      console.error(`❌ Error loading thresholds for ${jurisdiction}:`, error);
+      // Use defaults if jurisdiction file not found
+      jurisdictionThresholds = {
+        backingRatioThreshold: 100,
+        liquidityRatioThreshold: 20,
+        concentrationLimit: 25,
+        qualityThreshold: 80
+      };
+      console.log('🔄 Using default thresholds');
+    }
+    
+    // Set thresholds from jurisdiction settings
+    const backingRatioThreshold = jurisdictionThresholds.backingRatioThreshold;
+    const liquidityRatioThreshold = jurisdictionThresholds.liquidityRatioThreshold;
+    const finalConcentrationLimit = configConcentrationLimit !== 25 ? configConcentrationLimit : jurisdictionThresholds.concentrationLimit;
+    const qualityThreshold = jurisdictionThresholds.qualityThreshold;
+    
+    console.log(`🎯 Final thresholds: Backing=${backingRatioThreshold}%, Liquidity=${liquidityRatioThreshold}%, Concentration=${finalConcentrationLimit}%, Quality=${qualityThreshold}`);
+    
+    // Run Stablecoin verification
+    const result = await executeRiskLiquidityStableCoinOptimMerkleVerification(
+      backingRatioThreshold,
+      liquidityRatioThreshold,
+      finalConcentrationLimit,
+      qualityThreshold,
+      actusUrl,
+      contractPortfolio,
+      undefined, // No regulatory framework from config
+      jurisdiction.toUpperCase() // Pass jurisdiction parameter
+    );
+    
+    console.log('');
+    console.log('🏆 Stablecoin Risk Verification completed via direct execution');
+    console.log('Result success:', result.success);
+    console.log('=== STABLECOIN DIRECT EXECUTION SUCCESS ===');
+    
+    return {
+      success: result.success,
+      result: result,
+      executionMode: 'direct-stablecoin-verification',
+      timestamp: new Date().toISOString(),
+      processedParameters: {
+        liquidityThreshold,
+        actusUrl,
+        configFile: resolvedConfigPath,
+        executionMode,
+        jurisdiction
+      },
+      contractStatus: result.contractStatus,
+      riskMetrics: result.riskMetrics
+    };
+    
+  } catch (error) {
+    console.error('');
+    console.error('💥 Direct Stablecoin Verification failed:', error);
+    console.error('=== STABLECOIN DIRECT EXECUTION FAILED ===');
+    
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      executionMode: 'direct-stablecoin-verification',
+      timestamp: new Date().toISOString(),
+      stackTrace: error instanceof Error ? error.stack : undefined
+    };
+  }
+}

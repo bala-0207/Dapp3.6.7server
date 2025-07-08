@@ -1,0 +1,8 @@
+TypeScript changes made to:
+- RiskLiquidityAdvancedOptimMerkleVerificationTestWithSign.ts
+
+Added executeAdvancedVerificationDirect function for integrated server direct execution.
+
+Please run: npm run build
+
+This will compile the TypeScript changes to JavaScript so the integrated server can use the new direct execution function.

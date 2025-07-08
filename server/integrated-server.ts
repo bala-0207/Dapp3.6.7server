@@ -171,6 +171,39 @@ app.use(cors({
 app.use(express.json({ limit: process.env.MAX_REQUEST_SIZE || '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: process.env.MAX_REQUEST_SIZE || '10mb' }));
 
+// API Key Authentication Middleware
+if (process.env.ZK_PRET_ENABLE_API_AUTH === 'true') {
+  const API_KEY = process.env.ZK_PRET_API_KEY;
+  
+  const requireApiKey = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const providedKey = req.headers['x-api-key'] || req.headers['authorization']?.replace('Bearer ', '');
+    
+    if (!providedKey || providedKey !== API_KEY) {
+      logger.warn('Unauthorized API access attempt', {
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        url: req.url,
+        providedKey: providedKey ? '[REDACTED]' : 'none'
+      });
+      
+      return res.status(401).json({
+        success: false,
+        error: 'Unauthorized: Valid API key required',
+        timestamp: new Date().toISOString(),
+        server: 'zk-pret-integrated-server'
+      });
+    }
+    
+    next();
+  };
+  
+  // Apply API key requirement to all tool execution endpoints
+  app.use('/api/v1/tools', requireApiKey);
+  logger.info('API key authentication enabled for tool endpoints');
+} else {
+  logger.info('API key authentication disabled');
+}
+
 // Request logging
 app.use((req, res, next) => {
   logger.info('HTTP Request', {
