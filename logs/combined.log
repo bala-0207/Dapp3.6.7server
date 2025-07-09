@@ -1101,3 +1101,56 @@
 {"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-08T03:56:00.607Z","url":"/api/v1/health","userAgent":"axios/1.9.0"}
 {"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-08T03:56:00.630Z","url":"/api/v1/health","userAgent":"axios/1.9.0"}
 {"level":"info","message":"SIGINT received, shutting down gracefully","service":"zk-pret-integrated-server","timestamp":"2025-07-08T03:56:23.087Z"}
+{"level":"info","message":"Async job management enabled","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:20:42.797Z"}
+{"level":"info","message":"API key authentication enabled for tool endpoints","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:20:42.813Z"}
+{"level":"info","message":"Integrated ZK Tool Executor initialized successfully","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:20:42.821Z"}
+{"level":"info","message":"🚀 ZK-PRET Integrated HTTP Server started successfully","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:20:42.858Z"}
+{"level":"info","message":"📡 Server URL: http://localhost:3001","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:20:42.858Z"}
+{"level":"info","message":"🔄 Mode: Integrated (Backend + Server)","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:20:42.859Z"}
+{"level":"info","message":"📡 WebSocket URL: ws://localhost:3001","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:20:42.860Z"}
+{"level":"info","message":"⚡ Features: Direct access to ZK-PRET backend tools via HTTP API","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:20:42.860Z"}
+{"level":"info","message":"🎯 Ready to process ZK-PRET tool requests","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:20:42.860Z"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:20:55.290Z","url":"/api/v1/health","userAgent":"ZK-PRET-UNIFIED-APP/1.0.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:21:03.873Z","url":"/api/v1/health","userAgent":"ZK-PRET-UNIFIED-APP/1.0.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:21:07.770Z","url":"/api/v1/health","userAgent":"ZK-PRET-UNIFIED-APP/1.0.0"}
+{"level":"info","message":"SIGINT received, shutting down gracefully","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:22:28.777Z"}
+{"level":"info","message":"Async job management enabled","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:22:50.596Z"}
+{"level":"info","message":"API key authentication enabled for tool endpoints","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:22:50.604Z"}
+{"level":"info","message":"Integrated ZK Tool Executor initialized successfully","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:22:50.609Z"}
+{"level":"info","message":"🚀 ZK-PRET Integrated HTTP Server started successfully","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:22:50.630Z"}
+{"level":"info","message":"📡 Server URL: http://localhost:3001","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:22:50.630Z"}
+{"level":"info","message":"🔄 Mode: Integrated (Backend + Server)","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:22:50.631Z"}
+{"level":"info","message":"📡 WebSocket URL: ws://localhost:3001","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:22:50.631Z"}
+{"level":"info","message":"⚡ Features: Direct access to ZK-PRET backend tools via HTTP API","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:22:50.631Z"}
+{"level":"info","message":"🎯 Ready to process ZK-PRET tool requests","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:22:50.632Z"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:24:00.826Z","url":"/api/v1/health","userAgent":"ZK-PRET-UNIFIED-APP/1.0.0"}
+{"level":"info","message":"SIGINT received, shutting down gracefully","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:24:12.566Z"}
+{"level":"info","message":"Async job management enabled","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:24:43.333Z"}
+{"level":"info","message":"API key authentication enabled for tool endpoints","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:24:43.341Z"}
+{"level":"info","message":"Integrated ZK Tool Executor initialized successfully","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:24:43.350Z"}
+{"level":"info","message":"🚀 ZK-PRET Integrated HTTP Server started successfully","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:24:43.372Z"}
+{"level":"info","message":"📡 Server URL: http://localhost:3001","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:24:43.372Z"}
+{"level":"info","message":"🔄 Mode: Integrated (Backend + Server)","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:24:43.373Z"}
+{"level":"info","message":"📡 WebSocket URL: ws://localhost:3001","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:24:43.374Z"}
+{"level":"info","message":"⚡ Features: Direct access to ZK-PRET backend tools via HTTP API","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:24:43.374Z"}
+{"level":"info","message":"🎯 Ready to process ZK-PRET tool requests","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:24:43.374Z"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:25:41.029Z","url":"/api/v1/health","userAgent":"ZK-PRET-UNIFIED-APP/1.0.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:25:51.007Z","url":"/api/v1/health","userAgent":"ZK-PRET-UNIFIED-APP/1.0.0"}
+{"level":"info","message":"SIGINT received, shutting down gracefully","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:27:26.412Z"}
+{"level":"info","message":"Async job management enabled","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:28:07.734Z"}
+{"level":"info","message":"API key authentication enabled for tool endpoints","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:28:07.744Z"}
+{"level":"info","message":"Integrated ZK Tool Executor initialized successfully","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:28:07.751Z"}
+{"level":"info","message":"🚀 ZK-PRET Integrated HTTP Server started successfully","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:28:07.772Z"}
+{"level":"info","message":"📡 Server URL: http://localhost:3001","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:28:07.772Z"}
+{"level":"info","message":"🔄 Mode: Integrated (Backend + Server)","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:28:07.773Z"}
+{"level":"info","message":"📡 WebSocket URL: ws://localhost:3001","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:28:07.773Z"}
+{"level":"info","message":"⚡ Features: Direct access to ZK-PRET backend tools via HTTP API","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:28:07.773Z"}
+{"level":"info","message":"🎯 Ready to process ZK-PRET tool requests","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:28:07.774Z"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:28:17.835Z","url":"/api/v1/health","userAgent":"ZK-PRET-UNIFIED-APP/1.0.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:28:26.158Z","url":"/api/v1/health","userAgent":"ZK-PRET-UNIFIED-APP/1.0.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:28:29.218Z","url":"/api/v1/health","userAgent":"ZK-PRET-UNIFIED-APP/1.0.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:28:36.998Z","url":"/api/v1/health","userAgent":"ZK-PRET-UNIFIED-APP/1.0.0"}
+{"ip":"::1","level":"info","message":"HTTP Request","method":"POST","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:28:40.295Z","url":"/api/v1/tools/execute","userAgent":"ZK-PRET-UNIFIED-APP/1.0.0"}
+{"level":"info","message":"SYNC execution started","mode":"sync-integrated","parameters":"{\"command\":\"node ./build/tests/with-sign/RiskLiquidityAdvancedOptimMerkleVerificationTestWithSign.js\",\"liquidityThreshold\":100,\"actusUrl\":\"http://3.88.158.37:8083/eventsBatch\",\"configFilePath\":\"src/data/RISK/Advanced/CONFIG/Advanced-VALID-1.json\",\"executionMode\":\"ultra_strict\"}","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:28:40.297Z","toolName":"get-RiskLiquidityAdvancedOptimMerkle-verification-with-sign"}
+{"executionTime":"186906ms","level":"info","message":"SYNC execution completed","mode":"sync-integrated","service":"zk-pret-integrated-server","success":true,"timestamp":"2025-07-09T04:31:47.205Z","toolName":"get-RiskLiquidityAdvancedOptimMerkle-verification-with-sign","totalTime":"186908ms"}
+{"level":"info","message":"SIGINT received, shutting down gracefully","service":"zk-pret-integrated-server","timestamp":"2025-07-09T04:32:33.623Z"}
